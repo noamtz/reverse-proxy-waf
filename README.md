@@ -3,7 +3,7 @@
 start:
 ```
 git clone
-cd reverse_proxy_waf
+cd reverse-proxy-waf
 docker-compose up
 ```
  
