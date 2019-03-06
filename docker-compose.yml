@@ -1,0 +1,31 @@
+version: "2"
+
+services:
+  reverse_proxy:
+    container_name: "reverse_proxy"
+    build:
+      context: nginx-waf
+      dockerfile: Dockerfile
+    ports:
+      - "8888:80"
+    environment:
+      - INTERNAL_ENDPOINT=http://172.30.0.1:4111
+      - SECUREENGINE=on
+    networks:
+      - waf
+  app:
+    container_name: "app"
+    build:
+      context: ./app
+      dockerfile: Dockerfile
+    volumes:
+      - ./app:/usr/src/app
+    ports:
+      - "4111:3000"
+    networks:
+      - waf
+
+
+networks:
+  waf:
+    driver: bridge
