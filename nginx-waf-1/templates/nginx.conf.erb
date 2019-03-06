@@ -1,0 +1,59 @@
+
+user  root;
+worker_processes  1;
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+
+    access_log /proc/self/fd/1;
+    error_log /proc/self/fd/2;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+    server {
+        listen       80;
+        server_name  localhost;
+
+        #charset koi8-r;
+
+
+		# Enable ModSecurity
+		ModSecurityEnabled on;
+		ModSecurityConfig modsecurity.conf;
+
+		resolver 8.8.8.8;
+		set $upstream_endpoint <%= ENV['INTERNAL_ENDPOINT'] %>;
+		location / {
+			proxy_pass $upstream_endpoint;
+			proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+			proxy_redirect off;
+			proxy_buffering off;
+			proxy_force_ranges on;
+			proxy_set_header        Host            $host;
+			proxy_set_header        X-Real-IP       $remote_addr;
+			proxy_set_header        X-Forwarded-For $proxy_add_x_forwarded_for;
+		}
+		
+        # redirect server error pages to the static page /50x.html
+        #
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+
+    }
+
+}

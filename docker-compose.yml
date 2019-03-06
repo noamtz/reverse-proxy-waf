@@ -4,7 +4,7 @@ services:
   reverse_proxy:
     container_name: "reverse_proxy"
     build:
-      context: nginx-waf
+      context: nginx-waf-1
       dockerfile: Dockerfile
     ports:
       - "8888:80"
